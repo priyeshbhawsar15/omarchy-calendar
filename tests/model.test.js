@@ -252,6 +252,20 @@ test('announceLabel keeps the clock and appends the event', () => {
   )
 })
 
+test('announceTitleWidth leaves a host that sets no width unconstrained', () => {
+  assert.equal(Model.announceTitleWidth(0, 200), -1)
+  assert.equal(Model.announceTitleWidth(undefined, 200), -1)
+})
+
+test('announceTitleWidth gives the title what the rest of the label leaves', () => {
+  assert.equal(Model.announceTitleWidth(276, 200), 76)
+})
+
+test('announceTitleWidth drops a title with no useful room', () => {
+  assert.equal(Model.announceTitleWidth(276, 250), 0)
+  assert.equal(Model.announceTitleWidth(100, 200), 0)
+})
+
 test('announceLabel returns the clock alone when nothing is announced', () => {
   assert.equal(Model.announceLabel('lundi 15:46', 'Standup', ''), 'lundi 15:46')
   assert.equal(Model.announceLabel('lundi 15:46', 'Standup', null), 'lundi 15:46')

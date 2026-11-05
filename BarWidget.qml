@@ -55,7 +55,33 @@ BarWidget {
   // lines, and an event title has nowhere to go in it.
   readonly property string displayText: vertical || countdownPhrase === ""
     ? formatted(displayDate)
-    : Model.announceLabel(formatted(displayDate), upcomingEvent.title, countdownPhrase)
+    : Model.announceLabel(formatted(displayDate), announcedTitle, countdownPhrase)
+
+  // The width a host such as a bar's center notch allows; 0 means no limit. The
+  // title gives way so the clock and countdown stay whole.
+  property real availableWidth: 0
+
+  TextMetrics {
+    id: announceRest
+    font.family: button.fontFamily
+    font.pixelSize: button.fontSize
+    text: root.formatted(root.displayDate) + "  ·   " + root.countdownPhrase
+  }
+
+  TextMetrics {
+    id: announceTitle
+    font.family: button.fontFamily
+    font.pixelSize: button.fontSize
+    text: root.upcomingEvent ? String(root.upcomingEvent.title || "") : ""
+    elide: Text.ElideRight
+    elideWidth: Math.max(1, root.announceTitleRoom)
+  }
+
+  readonly property real announceTitleRoom: Model.announceTitleWidth(availableWidth,
+    announceRest.advanceWidth + 2 * button.scaledHorizontalMargin)
+  readonly property string announcedTitle: announceTitleRoom < 0
+    ? announceTitle.text
+    : announceTitleRoom === 0 ? "" : announceTitle.elidedText
   readonly property var verticalLines: displayText.split("\n")
 
   function refresh() {

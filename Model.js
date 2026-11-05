@@ -497,6 +497,18 @@ function truncateTitle(title, limit) {
   return text.substring(0, max - 1).replace(/\s+$/, "") + "…"
 }
 
+// Room for an event's title beside the rest of the label, for a host that says
+// how wide this widget may be. -1 means the host set no limit, and 0 that a title
+// would not fit in a useful size.
+var MIN_ANNOUNCE_TITLE_WIDTH = 40
+
+function announceTitleWidth(availableWidth, restWidth) {
+  var available = Number(availableWidth) || 0
+  if (available <= 0) return -1
+  var room = available - (Number(restWidth) || 0)
+  return room < MIN_ANNOUNCE_TITLE_WIDTH ? 0 : room
+}
+
 // The clock is kept rather than replaced. Giving it up was a real cost for a
 // widget whose whole job used to be telling the time, and there is room for
 // both.
@@ -596,6 +608,7 @@ if (typeof module !== "undefined") {
     formatCountdown: formatCountdown,
     truncateTitle: truncateTitle,
     announceLabel: announceLabel,
+    announceTitleWidth: announceTitleWidth,
     millisUntil: millisUntil,
     shouldAnnounce: shouldAnnounce,
     isCalendarHidden: isCalendarHidden,
