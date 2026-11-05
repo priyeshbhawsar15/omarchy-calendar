@@ -252,6 +252,19 @@ test('announceLabel keeps the clock and appends the event', () => {
   )
 })
 
+test('compactClockFormat keeps only the time of a longer format', () => {
+  assert.equal(Model.compactClockFormat('ddd d MMM h:mm AP'), 'h:mm AP')
+  assert.equal(Model.compactClockFormat('dddd HH:mm'), 'HH:mm')
+  assert.equal(Model.compactClockFormat("d MMMM 'W'ww yyyy hh:mm:ss ap"), 'hh:mm:ss ap')
+})
+
+test('compactClockFormat has nothing to offer without a shorter time', () => {
+  assert.equal(Model.compactClockFormat('h:mm AP'), '')
+  assert.equal(Model.compactClockFormat('dddd d MMMM'), '')
+  assert.equal(Model.compactClockFormat(''), '')
+  assert.equal(Model.compactClockFormat(undefined), '')
+})
+
 test('announceTitleWidth leaves a host that sets no width unconstrained', () => {
   assert.equal(Model.announceTitleWidth(0, 200), -1)
   assert.equal(Model.announceTitleWidth(undefined, 200), -1)

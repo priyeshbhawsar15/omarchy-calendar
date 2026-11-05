@@ -497,6 +497,14 @@ function truncateTitle(title, limit) {
   return text.substring(0, max - 1).replace(/\s+$/, "") + "…"
 }
 
+// The time alone from a longer clock format, so an announcement can make room for
+// a title and still tell the time. Empty when the format shows no shorter time.
+function compactClockFormat(format) {
+  var text = String(format === undefined || format === null ? "" : format)
+  var match = text.match(/[hH]{1,2}:mm(:ss)?(\s*[aA][pP])?/)
+  return match && match[0] !== text ? match[0] : ""
+}
+
 // Room for an event's title beside the rest of the label, for a host that says
 // how wide this widget may be. -1 means the host set no limit, and 0 that a title
 // would not fit in a useful size.
@@ -609,6 +617,7 @@ if (typeof module !== "undefined") {
     truncateTitle: truncateTitle,
     announceLabel: announceLabel,
     announceTitleWidth: announceTitleWidth,
+    compactClockFormat: compactClockFormat,
     millisUntil: millisUntil,
     shouldAnnounce: shouldAnnounce,
     isCalendarHidden: isCalendarHidden,

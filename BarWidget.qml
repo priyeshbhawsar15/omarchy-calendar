@@ -55,18 +55,42 @@ BarWidget {
   // lines, and an event title has nowhere to go in it.
   readonly property string displayText: vertical || countdownPhrase === ""
     ? formatted(displayDate)
-    : Model.announceLabel(formatted(displayDate), announcedTitle, countdownPhrase)
+    : Model.announceLabel(announceClock, announcedTitle, countdownPhrase)
 
   // The width a host such as a bar's center notch allows; 0 means no limit. The
-  // title gives way so the clock and countdown stay whole.
+  // title gives way so the countdown stays whole. If a long clock format leaves
+  // it no useful room, the clock gives up its date for the announcement.
   property real availableWidth: 0
 
+  readonly property string announceSeparator: "  ·   "
+  readonly property real announceMargins: 2 * button.scaledHorizontalMargin
+
   TextMetrics {
-    id: announceRest
+    id: fullClockRest
     font.family: button.fontFamily
     font.pixelSize: button.fontSize
-    text: root.formatted(root.displayDate) + "  ·   " + root.countdownPhrase
+    text: root.formatted(root.displayDate) + root.announceSeparator + root.countdownPhrase
   }
+
+  readonly property string compactClockFormat: Model.compactClockFormat(activeFormat)
+  readonly property string compactClock: compactClockFormat === ""
+    ? "" : Qt.formatDateTime(root.displayDate, compactClockFormat)
+
+  TextMetrics {
+    id: compactClockRest
+    font.family: button.fontFamily
+    font.pixelSize: button.fontSize
+    text: root.compactClock + root.announceSeparator + root.countdownPhrase
+  }
+
+  readonly property real fullClockTitleRoom: Model.announceTitleWidth(availableWidth,
+    fullClockRest.advanceWidth + announceMargins)
+  readonly property bool announceCompactClock: fullClockTitleRoom === 0 && compactClock !== ""
+  readonly property string announceClock: announceCompactClock
+    ? compactClock : formatted(displayDate)
+  readonly property real announceTitleRoom: announceCompactClock
+    ? Model.announceTitleWidth(availableWidth, compactClockRest.advanceWidth + announceMargins)
+    : fullClockTitleRoom
 
   TextMetrics {
     id: announceTitle
@@ -77,8 +101,6 @@ BarWidget {
     elideWidth: Math.max(1, root.announceTitleRoom)
   }
 
-  readonly property real announceTitleRoom: Model.announceTitleWidth(availableWidth,
-    announceRest.advanceWidth + 2 * button.scaledHorizontalMargin)
   readonly property string announcedTitle: announceTitleRoom < 0
     ? announceTitle.text
     : announceTitleRoom === 0 ? "" : announceTitle.elidedText
